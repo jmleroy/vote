@@ -36,6 +36,13 @@
       <td><input class="votes" value="100"></td>
     </tr>
     <tr>
+      <th scope="row">Pourcentage</th>
+      <td class="percent"></td>
+      <td class="percent"></td>
+      <td class="percent"></td>
+      <td class="percent"></td>
+    </tr>
+    <tr>
       <th scope="row">Sièges</td>
       <td class="seats"></td>
       <td class="seats"></td>
@@ -72,6 +79,11 @@ var votes = {},
 			$('.totalVotes').html(t);
 		}
 	},
+	setPercentages = function(totalVotes) {
+		$.each(votes, function(list, elem) {
+            $('.percent')[list].innerHTML = Math.round((100 * elem) / totalVotes, 2) + '%';
+		});
+	},
 	addDanger = function() {
       $('input').addClass('bg-danger');
       $('.totalVotes').addClass('text-danger');
@@ -94,9 +106,11 @@ var votes = {},
       });
 
       setTotalVotes(totalVotes);
+      setPercentages(totalVotes);
       if (!totalVotes || totalVotes > maxVotes) {
         addDanger();
         $('.seats').html(0);
+        $('.percent').html('-');
         return;
       }
 
