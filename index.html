@@ -12,14 +12,15 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <style type="text/css">
-        th { width: 20% }
-        input { width: auto }
+        .election th { width: 20% }
+        /*.election input { width: 80%; }*/
         .hidden {display: none;}
+        .summary { width: 40%; }
     </style>
 </head>
 <body>
 
-<table class="table">
+<table class="table election">
   <thead>
     <tr>
       <th></th>
@@ -53,26 +54,43 @@
       <td class="percent"></td>
     </tr>
     <tr>
-      <th scope="row">Sièges</td>
+      <th scope="row">Sièges</th>
       <td class="seats"></td>
       <td class="seats"></td>
       <td class="seats"></td>
       <td class="seats"></td>
     </tr>
+    <tr class="actions">
+      <td></td>
+      <td>
+          <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
+      </td>
+      <td>
+          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
+      </td>
+      <td>
+          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
+      </td>
+      <td>
+          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
+          <a href="#" class="addList text-primary"><i class="fas fa-plus"></i></a>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<table class="table summary">
+  <tbody>
     <tr>
-      <th scope="row">Nombre total d'électeurs</td>
+      <th scope="row">Nombre total d'électeurs</th>
       <td><input name="maxVotes" value="3904"></td>
-      <td colspan="3"></td>
     </tr>    
     <tr>
-      <th scope="row">Nombre de sièges à pourvoir</td>
+      <th scope="row">Nombre de sièges à pourvoir</th>
       <td><input name="maxSeats" value="17"></td>
-      <td colspan="3"></td>
     </tr>    
     <tr>
-      <th scope="row">Votes exprimés</td>
+      <th scope="row">Votes exprimés</th>
       <td class="totalVotes"></td>
-      <td colspan="3"></td>
     </tr>
   </tbody>
 </table>
@@ -129,12 +147,6 @@ var votes = [],
     removeAlert = function() {
         $('.alert-message').remove();
         return true;
-    },
-    addList = function () {
-        console.debug('add');
-    },
-    removeList = function () {
-        console.debug('remove');
     },
     refresh = function () {
         votes = [];
@@ -206,11 +218,37 @@ $('input').on('input', function (e) {
 });
 $('.addList').on('click', function (e) {
     e.preventDefault();
-    addList();
+
+    var listNumber = votes.length;
+
+    $('table.election tr > *:last-child').each(function(list, elem) {
+        var newElement = $(elem).clone(true, true);
+        $(newElement).find('input[name="list[]"]').val('Liste ' + listNumber);
+        $(newElement).find('input.votes').val(0);
+        $(newElement).find('.removeList').removeClass('hidden'); // edge case with last column remaining
+        $($('table.election tr')[list]).append(newElement);
+    });
+
+    $(this).remove();
+    refresh();
 });
 $('.removeList').on('click', function (e) {
     e.preventDefault();
-    removeList();
+    
+    var $addList = $(this).siblings('.addList'),
+        colNum = $(this).parent().index() + 1;
+
+    if ($addList.length) {
+        $addList = $addList.clone(true, true);  
+    } 
+
+    $('table.election tr > *:nth-child(' + colNum + ')').remove();
+
+    if ($addList.length) {
+        $('tr.actions > *:last-child').append($addList);
+    }
+
+    refresh();
 });
 $(document).ready(function () {
     refresh();
