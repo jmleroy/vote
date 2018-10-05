@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Simulateur Héron 2018</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+	<style type="text/css">
+		th { width: 20% }
+		input { width: 100% }
+	</style>
+</head>
+<body>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th></th>
+      <th scope="col">Ecolo OuVert</th>
+      <th scope="col">EC</th>
+      <th scope="col">LB</th>
+      <th scope="col">Vous Héron</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Voix</th>
+      <td><input class="votes" name="ecolo"></td>
+      <td><input class="votes" name="ec"></td>
+      <td><input class="votes" name="lb"></td>
+      <td><input class="votes" name="vous"></td>
+    </tr>
+    <tr>
+      <th scope="row">Sièges</td>
+      <td class="ecolo seats"></td>
+      <td class="ec seats"></td>
+      <td class="lb seats"></td>
+      <td class="vous seats"></td>
+    </tr>
+    <tr>
+      <th scope="row">Nombre total d'électeurs</td>
+      <td class="maxVotes">3904</td>
+      <td colspan="3"></td>
+    </tr>    
+    <tr>
+      <th scope="row">Nombre de sièges à pourvoir</td>
+      <td class="maxSeats">17</td>
+      <td colspan="3"></td>
+    </tr>    
+    <tr>
+      <th scope="row">Votes exprimés</td>
+      <td class="totalVotes"></td>
+      <td colspan="3"></td>
+    </tr>
+  </tbody>
+</table>
+<script type="text/javascript">
+var votes = {},
+	seats = {},
+	totalVotes = 0,
+	maxVotes = $('.maxVotes').html() * 1,
+	maxSeats = $('.maxSeats').html() * 1,
+	setTotalVotes = function(t) {
+		$('.totalVotes').html(t);
+	},
+    refresh = function() {
+      $('input.votes').each(function() {
+      	var list = $(this).attr('name');
+        votes[list] = this.value * 1;
+        seats[list] = 0;
+      })
+      totalVotes = 0;
+      $.each(votes, function(k, elem) {
+      	totalVotes = totalVotes + elem; 
+      });
+
+      if (!totalVotes || totalVotes > maxVotes) {
+        $('input').addClass('bg-danger');
+        $('.seats').html('');
+        setTotalVotes('');
+        return;
+      }
+
+      setTotalVotes(totalVotes);
+
+      // Calcul
+      var imperiali = [], top = [];
+      i = 0; 
+	  while(i < 9) {
+	  	imperiali[i++] = {};
+	  }
+	  
+      $.each(votes, function(k, elem) {
+      	i = 0; 
+      	while(i < 9) {
+      		imperiali[i][k] = Math.round(elem / (i + 1), 0);
+      		top[top.length] = {
+      			value: imperiali[i][k],
+      			list: k,
+      			rank: i
+      		};
+      		i++;
+      	}
+      });
+      
+      top.sort(function(a, b) {
+        return b.value - a.value;
+      });
+      while(top.length > maxSeats) top.pop();
+
+      console.debug('top:', top);
+
+      $.each(top, function(k, elem) {
+        seats[elem.list]++;
+      });
+
+      $.each(seats, function (k,elem) {
+        $('.seats.' + k).html(elem);
+      });       
+
+      $('input').removeClass('bg-danger');
+    };
+    
+$('input').on('keyup', function(e) {
+	refresh();
+});
+$(document).ready(function() { refresh(); });
+
+</script>
+</body>
+</html>
