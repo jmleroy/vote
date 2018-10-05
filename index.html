@@ -10,10 +10,11 @@
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-	<style type="text/css">
-		th { width: 20% }
-		input { width: 100% }
-	</style>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+    <style type="text/css">
+        th { width: 20% }
+        input { width: auto }
+    </style>
 </head>
 <body>
 
@@ -21,10 +22,18 @@
   <thead>
     <tr>
       <th></th>
-      <th scope="col"><input class="list" value="Ecolo OuVert"></th>
-      <th scope="col"><input class="list" value="EC"></th>
-      <th scope="col"><input class="list" value="LB"></th>
-      <th scope="col"><input class="list" value="Vous Héron"></th>
+      <th scope="col">
+          <input class="list" value="Ecolo OuVert">
+      </th>
+      <th scope="col">
+          <input class="list" value="EC">
+      </th>
+      <th scope="col">
+          <input class="list" value="LB">
+      </th>
+      <th scope="col">
+          <input class="list" value="Vous Héron">
+      </th>
     </tr>
   </thead>
   <tbody>
@@ -68,99 +77,104 @@
 </table>
 <script type="text/javascript">
 var votes = [],
-	seats = [],
-	totalVotes = 0,
-	maxVotes = 0,
-	maxSeats = 0,
-	setTotalVotes = function(t) {
-		if (isNaN(parseInt(t))) {
-			$('.totalVotes').html('Erreur');
-		} else {
-			$('.totalVotes').html(t);
-		}
-	},
-	setPercentages = function(totalVotes) {
-		$.each(votes, function(list, elem) {
+    seats = [],
+    totalVotes = 0,
+    maxVotes = 0,
+    maxSeats = 0,
+    setTotalVotes = function (t) {
+        if (isNaN(parseInt(t))) {
+            $('.totalVotes').html('Erreur');
+        } else {
+            $('.totalVotes').html(t);
+        }
+    },
+    setPercentages = function (totalVotes) {
+        $.each(votes, function (list, elem) {
             $('.percent')[list].innerHTML = Math.round((100 * elem) / totalVotes, 2) + '%';
-		});
-	},
-	addDanger = function() {
-      $('input').addClass('bg-danger');
-      $('.totalVotes').addClass('text-danger');
-	},
-	removeDanger = function() {
-      $('input').removeClass('bg-danger');
-      $('.totalVotes').removeClass('text-danger');
-	},
-    refresh = function() {
-      maxVotes = $('input[name=maxVotes]').val() * 1;
-      maxSeats = $('input[name=maxSeats]').val() * 1;
-      
-      $('input.votes').each(function(list) {
-        votes[list] = this.value * 1;
-        seats[list] = 0;
-      })
-      totalVotes = 0;
-      $.each(votes, function(k, elem) {
-      	totalVotes = totalVotes + elem; 
-      });
-
-      setTotalVotes(totalVotes);
-      setPercentages(totalVotes);
-      if (!totalVotes || totalVotes > maxVotes) {
-        addDanger();
-        $('.seats').html(0);
-        $('.percent').html('-');
-        return;
-      }
-
-      $.each(getImperiali(votes, maxSeats), function(k, elem) {
-        seats[elem.list]++;
-      });
-
-      $.each(seats, function (k,elem) {
-        $('.seats')[k].innerHTML = elem;
-      });       
-
-      $('input').removeClass('bg-danger');
-    },
-    getDHondt = function(votes, maxSeats) {
-    	return _getQuotient(votes, maxSeats, 1);
-    },
-    getImperiali = function(votes, maxSeats) {
-    	return _getQuotient(votes, maxSeats, 2);
-    },
-    _getQuotient = function(votes, maxSeats, start) {
-      var all = [], 
-          top = [], 
-          quotient = isNaN(parseInt(start)) ? 0 : start;
-      
-      $.each(votes, function(list, vote) {
-      	i = 0; 
-      	while(i < maxSeats) {
-      		all[all.length] = {
-      			value: Math.round(vote / (quotient + i), 1),
-      			list: list,
-      			rank: i
-      		};
-      		i++;
-      	  }
         });
-     
-      
-      all.sort(function(a, b) {
-        return a.value - b.value;
-      });
-      
-      while(top.length < maxSeats) top[top.length] = all.pop();
+    },
+    addDanger = function () {
+        $('input').addClass('bg-danger');
+        $('.totalVotes').addClass('text-danger');
+    },
+    removeDanger = function () {
+        $('input').removeClass('bg-danger');
+        $('.totalVotes').removeClass('text-danger');
+    },
+    refresh = function () {
+        votes = [];
+        seats = [];
+        totalVotes = 0;
+        maxVotes = $('input[name=maxVotes]').val() * 1;
+        maxSeats = $('input[name=maxSeats]').val() * 1;
 
-      return top;
-    };
-    
-$('input').on('keyup', function(e) {
-	refresh();
+        $('input.votes').each(function (list) {
+            votes[list] = this.value * 1;
+            seats[list] = 0;
+        })
+        totalVotes = 0;
+        $.each(votes, function (k, elem) {
+            totalVotes = totalVotes + elem;
+        });
+
+        setTotalVotes(totalVotes);
+        setPercentages(totalVotes);
+        if (!totalVotes || totalVotes > maxVotes) {
+            addDanger();
+            $('.seats').html(0);
+            $('.percent').html('-');
+            return;
+        }
+
+        $.each(getImperiali(votes, maxSeats), function (k, elem) {
+            seats[elem.list]++;
+        });
+
+        $.each(seats, function (k, elem) {
+            $('.seats')[k].innerHTML = elem;
+        });
+
+        $('input').removeClass('bg-danger');
+    },
+    getDHondt = function (votes, maxSeats) {
+        return _getQuotient(votes, maxSeats, 1);
+    },
+    getImperiali = function (votes, maxSeats) {
+        return _getQuotient(votes, maxSeats, 2);
+    },
+    _getQuotient = function (votes, maxSeats, start) {
+        var all = [],
+            top = [],
+            quotient = isNaN(parseInt(start)) ? 1 : start;
+
+        i = 0;
+        while (i < maxSeats) {
+            $.each(votes, function (list, vote) {
+                all[all.length] = {
+                    value: Math.round(vote / (quotient + i), 1),
+                    list: list,
+                    rank: i
+                };
+            });
+            i++;
+        }
+
+        all.sort(function (a, b) {
+            return a.value - b.value;
+        });
+
+        while (top.length < maxSeats) top[top.length] = all.pop();
+
+        return top;
+    }
+;
+
+$('input').on('keyup', function (e) {
+    refresh();
 });
-$(document).ready(function() { refresh(); });
+$(document).ready(function () {
+    refresh();
+});
 
 </script>
 </body>
