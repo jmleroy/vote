@@ -44,12 +44,12 @@
     </tr>
     <tr>
       <th scope="row">Nombre total d'électeurs</td>
-      <td class="maxVotes">3904</td>
+      <td><input name="maxVotes" value="3904"></td>
       <td colspan="3"></td>
     </tr>    
     <tr>
       <th scope="row">Nombre de sièges à pourvoir</td>
-      <td class="maxSeats">17</td>
+      <td><input name="maxSeats" value="17"></td>
       <td colspan="3"></td>
     </tr>    
     <tr>
@@ -63,8 +63,8 @@
 var votes = {},
 	seats = {},
 	totalVotes = 0,
-	maxVotes = $('.maxVotes').html() * 1,
-	maxSeats = $('.maxSeats').html() * 1,
+	maxVotes = 0,
+	maxSeats = 0,
 	setTotalVotes = function(t) {
 		if (isNaN(parseInt(t))) {
 			$('.totalVotes').html('Erreur');
@@ -81,6 +81,8 @@ var votes = {},
       $('.totalVotes').removeClass('text-danger');
 	},
     refresh = function() {
+      maxVotes = $('input[name=maxVotes]').val() * 1;
+      maxSeats = $('input[name=maxSeats]').val() * 1;
       $('input.votes').each(function() {
       	var list = $(this).attr('name');
         votes[list] = this.value * 1;
