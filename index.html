@@ -67,8 +67,8 @@
   </tbody>
 </table>
 <script type="text/javascript">
-var votes = {},
-	seats = {},
+var votes = [],
+	seats = [],
 	totalVotes = 0,
 	maxVotes = 0,
 	maxSeats = 0,
@@ -124,17 +124,23 @@ var votes = {},
 
       $('input').removeClass('bg-danger');
     },
+    getDHondt = function(votes, maxSeats) {
+    	return _getQuotient(votes, maxSeats, 1);
+    },
     getImperiali = function(votes, maxSeats) {
-    	// Calcul
-      var top = [];
-	  
-	  
-      $.each(votes, function(k, elem) {
+    	return _getQuotient(votes, maxSeats, 2);
+    },
+    _getQuotient = function(votes, maxSeats, start) {
+      var all = [], 
+          top = [], 
+          quotient = isNaN(parseInt(start)) ? 0 : start;
+      
+      $.each(votes, function(list, vote) {
       	i = 0; 
       	while(i < maxSeats) {
-      		top[top.length] = {
-      			value: Math.round(elem / (i + 1), 0),
-      			list: k,
+      		all[all.length] = {
+      			value: Math.round(vote / (quotient + i), 1),
+      			list: list,
       			rank: i
       		};
       		i++;
@@ -142,10 +148,11 @@ var votes = {},
         });
      
       
-      top.sort(function(a, b) {
-        return b.value - a.value;
+      all.sort(function(a, b) {
+        return a.value - b.value;
       });
-      while(top.length > maxSeats) top.pop();
+      
+      while(top.length < maxSeats) top[top.length] = all.pop();
 
       return top;
     };
