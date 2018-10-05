@@ -66,7 +66,19 @@ var votes = {},
 	maxVotes = $('.maxVotes').html() * 1,
 	maxSeats = $('.maxSeats').html() * 1,
 	setTotalVotes = function(t) {
-		$('.totalVotes').html(t);
+		if (isNaN(parseInt(t))) {
+			$('.totalVotes').html('Erreur');
+		} else {
+			$('.totalVotes').html(t);
+		}
+	},
+	addDanger = function() {
+      $('input').addClass('bg-danger');
+      $('.totalVotes').addClass('text-danger');
+	},
+	removeDanger = function() {
+      $('input').removeClass('bg-danger');
+      $('.totalVotes').removeClass('text-danger');
 	},
     refresh = function() {
       $('input.votes').each(function() {
@@ -79,28 +91,32 @@ var votes = {},
       	totalVotes = totalVotes + elem; 
       });
 
+      setTotalVotes(totalVotes);
       if (!totalVotes || totalVotes > maxVotes) {
-        $('input').addClass('bg-danger');
-        $('.seats').html('');
-        setTotalVotes('');
+        addDanger();
+        $('.seats').html(0);
         return;
       }
 
-      setTotalVotes(totalVotes);
+      $.each(getImperiali(votes, maxSeats), function(k, elem) {
+        seats[elem.list]++;
+      });
 
-      // Calcul
-      var imperiali = [], top = [];
-      i = 0; 
-	  while(i < 9) {
-	  	imperiali[i++] = {};
-	  }
+      $.each(seats, function (k,elem) {
+        $('.seats.' + k).html(elem);
+      });       
+
+      $('input').removeClass('bg-danger');
+    },
+    getImperiali = function(votes, maxSeats) {
+    	// Calcul
+      var top = [];
 	  
       $.each(votes, function(k, elem) {
       	i = 0; 
       	while(i < 9) {
-      		imperiali[i][k] = Math.round(elem / (i + 1), 0);
       		top[top.length] = {
-      			value: imperiali[i][k],
+      			value: Math.round(elem / (i + 1), 0),
       			list: k,
       			rank: i
       		};
@@ -113,17 +129,7 @@ var votes = {},
       });
       while(top.length > maxSeats) top.pop();
 
-      console.debug('top:', top);
-
-      $.each(top, function(k, elem) {
-        seats[elem.list]++;
-      });
-
-      $.each(seats, function (k,elem) {
-        $('.seats.' + k).html(elem);
-      });       
-
-      $('input').removeClass('bg-danger');
+      return top;
     };
     
 $('input').on('keyup', function(e) {
