@@ -30,10 +30,10 @@
   <tbody>
     <tr>
       <th scope="row">Voix</th>
-      <td><input class="votes" value="100"></td>
-      <td><input class="votes" value="100"></td>
-      <td><input class="votes" value="100"></td>
-      <td><input class="votes" value="100"></td>
+      <td><input class="votes" type="number" value="100"></td>
+      <td><input class="votes" type="number" value="100"></td>
+      <td><input class="votes" type="number" value="100"></td>
+      <td><input class="votes" type="number" value="100"></td>
     </tr>
     <tr>
       <th scope="row">Pourcentage</th>
@@ -128,17 +128,19 @@ var votes = {},
     	// Calcul
       var top = [];
 	  
-      $.each(votes, function(k, elem) {
-      	i = 0; 
+	  i = 0; 
       	while(i < maxSeats) {
+      $.each(votes, function(k, elem) {
+      	
       		top[top.length] = {
       			value: Math.round(elem / (i + 1), 0),
       			list: k,
       			rank: i
       		};
       		i++;
-      	}
+      	
       });
+      }
       
       top.sort(function(a, b) {
         return b.value - a.value;
