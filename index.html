@@ -151,7 +151,7 @@ var votes = [],
         while (i < maxSeats) {
             $.each(votes, function (list, vote) {
                 all[all.length] = {
-                    value: Math.round(vote / (quotient + i), 1),
+                    value: vote / (quotient + i),
                     list: list,
                     rank: i
                 };
