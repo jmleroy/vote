@@ -14,6 +14,7 @@
     <style type="text/css">
         th { width: 20% }
         input { width: auto }
+        .hidden {display: none;}
     </style>
 </head>
 <body>
@@ -22,17 +23,17 @@
   <thead>
     <tr>
       <th></th>
-      <th scope="col">
-          <input class="list" value="Ecolo OuVert">
+      <th scope="col" class="list">
+          <input name="list[]" value="Ecolo OuVert">
       </th>
       <th scope="col">
-          <input class="list" value="EC">
+          <input name="list[]" value="EC">
       </th>
       <th scope="col">
-          <input class="list" value="LB">
+          <input name="list[]" value="LB">
       </th>
       <th scope="col">
-          <input class="list" value="Vous Héron">
+          <input name="list[]" value="Vous Héron">
       </th>
     </tr>
   </thead>
@@ -75,6 +76,12 @@
     </tr>
   </tbody>
 </table>
+<div class="alert-model alert alert-danger hidden" role="alert">
+  <span class="message"></span>
+  <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
 <script type="text/javascript">
 var votes = [],
     seats = [],
@@ -93,13 +100,41 @@ var votes = [],
             $('.percent')[list].innerHTML = Math.round((100 * elem) / totalVotes, 2) + '%';
         });
     },
-    addDanger = function () {
+    addDanger = function (message) {
         $('input').addClass('bg-danger');
         $('.totalVotes').addClass('text-danger');
+        $('.seats').html(0);
+        $('.percent').html('-');
+        return addAlert(message);
     },
     removeDanger = function () {
         $('input').removeClass('bg-danger');
         $('.totalVotes').removeClass('text-danger');
+        return removeAlert();
+    },
+    addAlert = function(message) {
+        if ($('.alert-message').length == 0) {
+            var $alert = $('.alert-model').clone();
+            $alert.removeClass('hidden');
+            $alert.removeClass('alert-model');
+            $alert.addClass('alert-message');
+            $alert.prependTo('body');
+        } else {
+            var $alert = $('.alert-message');
+        }
+
+        $alert.find('span.message').html(message);
+        return true;
+    },
+    removeAlert = function() {
+        $('.alert-message').remove();
+        return true;
+    },
+    addList = function () {
+        console.debug('add');
+    },
+    removeList = function () {
+        console.debug('remove');
     },
     refresh = function () {
         votes = [];
@@ -119,11 +154,8 @@ var votes = [],
 
         setTotalVotes(totalVotes);
         setPercentages(totalVotes);
-        if (!totalVotes || totalVotes > maxVotes) {
-            addDanger();
-            $('.seats').html(0);
-            $('.percent').html('-');
-            return;
+        if (!totalVotes || !maxVotes || !maxSeats || totalVotes > maxVotes) {
+            return addDanger('error');
         }
 
         $.each(getImperiali(votes, maxSeats), function (k, elem) {
@@ -134,7 +166,7 @@ var votes = [],
             $('.seats')[k].innerHTML = elem;
         });
 
-        $('input').removeClass('bg-danger');
+        removeDanger();
     },
     getDHondt = function (votes, maxSeats) {
         return _getQuotient(votes, maxSeats, 1);
@@ -169,8 +201,16 @@ var votes = [],
     }
 ;
 
-$('input').on('keyup mouseup', function (e) {
+$('input').on('input', function (e) {
     refresh();
+});
+$('.addList').on('click', function (e) {
+    e.preventDefault();
+    addList();
+});
+$('.removeList').on('click', function (e) {
+    e.preventDefault();
+    removeList();
 });
 $(document).ready(function () {
     refresh();
