@@ -128,19 +128,19 @@ var votes = {},
     	// Calcul
       var top = [];
 	  
-	  i = 0; 
-      	while(i < maxSeats) {
+	  
       $.each(votes, function(k, elem) {
-      	
+      	i = 0; 
+      	while(i < maxSeats) {
       		top[top.length] = {
       			value: Math.round(elem / (i + 1), 0),
       			list: k,
       			rank: i
       		};
       		i++;
-      	
-      });
-      }
+      	  }
+        });
+     
       
       top.sort(function(a, b) {
         return b.value - a.value;
