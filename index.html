@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
     <style type="text/css">
         .election th { width: 20% }
-        /*.election input { width: 80%; }*/
         .hidden {display: none;}
         .summary { width: 40%; }
     </style>
@@ -23,56 +22,29 @@
 <table class="table election">
   <thead>
     <tr>
-      <th></th>
+      <th><input name="communeName" value=""></th>
       <th scope="col" class="list">
-          <input name="list[]" value="Ecolo OuVert">
-      </th>
-      <th scope="col">
-          <input name="list[]" value="EC">
-      </th>
-      <th scope="col">
-          <input name="list[]" value="LB">
-      </th>
-      <th scope="col">
-          <input name="list[]" value="Vous Héron">
+          <input name="list[]" value="">
       </th>
     </tr>
   </thead>
   <tbody>
     <tr>
       <th scope="row">Voix</th>
-      <td><input class="votes" type="number" value="100"></td>
-      <td><input class="votes" type="number" value="100"></td>
-      <td><input class="votes" type="number" value="100"></td>
-      <td><input class="votes" type="number" value="100"></td>
+      <td><input name="votes[]" class="votes" type="number" value="0"></td>
     </tr>
     <tr>
       <th scope="row">Pourcentage</th>
       <td class="percent"></td>
-      <td class="percent"></td>
-      <td class="percent"></td>
-      <td class="percent"></td>
     </tr>
     <tr>
       <th scope="row">Sièges</th>
-      <td class="seats"></td>
-      <td class="seats"></td>
-      <td class="seats"></td>
       <td class="seats"></td>
     </tr>
     <tr class="actions">
       <td></td>
       <td>
           <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
-      </td>
-      <td>
-          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
-      </td>
-      <td>
-          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
-      </td>
-      <td>
-          <a href="#" class="removeList text-danger"><i class="fas fa-trash-alt"></i></a>
           <a href="#" class="addList text-primary"><i class="fas fa-plus"></i></a>
       </td>
     </tr>
@@ -82,11 +54,11 @@
   <tbody>
     <tr>
       <th scope="row">Nombre total d'électeurs</th>
-      <td><input name="maxVotes" value="3904"></td>
+      <td><input name="maxVotes" value=""></td>
     </tr>    
     <tr>
       <th scope="row">Nombre de sièges à pourvoir</th>
-      <td><input name="maxSeats" value="17"></td>
+      <td><input name="maxSeats" value=""></td>
     </tr>    
     <tr>
       <th scope="row">Votes exprimés</th>
@@ -101,11 +73,68 @@
   </button>
 </div>
 <script type="text/javascript">
+var commune = {
+    name: "Héron",
+    maxVotes: 3904,
+    maxSeats: 17,
+    //previousMaxVotes: 0,
+    //previousMaxSeats: 15,
+    lists: {
+        "Ecolo OuVert": {
+            //color: '#3AAA11',
+            //previousName: "Ecolo",
+            //previousVotes: 1331,
+            votes: 410
+        },
+        "EC": {
+            //color: '#5DBFBF',
+            //previousName: "Renouveau + IC",
+            //previousVotes: 1331,
+            votes: 1443 //511+932
+        },
+        "LB": {
+            //color: '#9F0122',
+            //previousName: "LB",
+            //previousVotes: 1331,
+            votes: 1331 // 1405-74
+        },
+        "Vous Héron": {
+            //color: '#AAAAAA',
+            //previousVotes: 74,
+            votes: 74
+        }
+    }
+};
+</script>
+<script type="text/javascript">
 var votes = [],
     seats = [],
     totalVotes = 0,
     maxVotes = 0,
     maxSeats = 0,
+    init = function() {
+        $('input[name=communeName]').val(commune.name);
+        var numCol = 0;
+        $.each(commune.lists, function(listName, listData) {
+            if (numCol) {
+                $('.addList').click();
+            }
+            _setListName(numCol, listName);
+            _setVotes(numCol, listData.votes);
+            numCol++;
+        });
+        $('input[name=maxVotes]').val(commune.maxVotes);
+        $('input[name=maxSeats]').val(commune.maxSeats);
+        refresh();
+    },
+    _setListName = function (numCol, name) {
+        var inputList = $('input[name="list[]"]')[numCol];
+        inputList.value = name;
+    },
+    _setVotes = function (numCol, votes) {
+        var inputVote = $('input[name="votes[]"]')[numCol];
+        inputVote.value = votes;
+    },
     setTotalVotes = function (t) {
         if (isNaN(parseInt(t))) {
             $('.totalVotes').html('Erreur');
@@ -250,8 +279,10 @@ $('.removeList').on('click', function (e) {
 
     refresh();
 });
+
+
 $(document).ready(function () {
-    refresh();
+    init();
 });
 
 </script>
