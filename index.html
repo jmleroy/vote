@@ -41,8 +41,22 @@
       <th scope="row">Sièges</th>
       <td class="seats"></td>
     </tr>
+    <tr>
+      <th scope="row">2012</th>
+      <td class="previousName"></td>
+    </tr>
+    <tr>
+      <th scope="row">Voix</th>
+      <td class="previousVotes"></td>
+    </tr>
+    <tr>
+      <th scope="row">Sièges</th>
+      <td class="previousSeats"></td>
+    </tr>
     <tr class="actions">
-      <td></td>
+      <td>
+          <a href="#" class="resetElection text-danger"><i class="fas fa-eraser"></i></a>
+      </td>
       <td>
           <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
           <a href="#" class="addList text-primary"><i class="fas fa-plus"></i></a>
@@ -51,17 +65,27 @@
   </tbody>
 </table>
 <table class="table summary">
+  <thead>
+      <tr>
+          <th></th>
+          <th scope="col">2012</th>
+          <th scope="col">2018</th>
+      </tr>
+  </thead>
   <tbody>
     <tr>
       <th scope="row">Nombre total d'électeurs</th>
+      <td class="previousMaxVotes">-</td>
       <td><input name="maxVotes" value=""></td>
     </tr>    
     <tr>
       <th scope="row">Nombre de sièges à pourvoir</th>
+      <td class="previousMaxSeats">-</td>
       <td><input name="maxSeats" value=""></td>
     </tr>    
     <tr>
       <th scope="row">Votes exprimés</th>
+      <td class="previousTotalVotes">-</td>
       <td class="totalVotes"></td>
     </tr>
   </tbody>
@@ -77,30 +101,35 @@ var commune = {
     name: "Héron",
     maxVotes: 3904,
     maxSeats: 17,
-    //previousMaxVotes: 0,
-    //previousMaxSeats: 15,
+    previousMaxVotes: 3731,
+    previousMaxSeats: 15,
     lists: {
         "Ecolo OuVert": {
             //color: '#3AAA11',
-            //previousName: "Ecolo",
-            //previousVotes: 1331,
+            previousName: "Ecolo",
+            previousVotes: 410,
+            previousSeats: 1,
             votes: 410
         },
         "EC": {
             //color: '#5DBFBF',
-            //previousName: "Renouveau + IC",
-            //previousVotes: 1331,
+            previousName: "Renouveau + IC",
+            previousVotes: 1443,
+            previousSeats: 6, //4+2
             votes: 1443 //511+932
         },
         "LB": {
             //color: '#9F0122',
-            //previousName: "LB",
-            //previousVotes: 1331,
+            previousName: "LB",
+            previousVotes: 1331,
+            previousSeats: 7,
             votes: 1331 // 1405-74
         },
         "Vous Héron": {
             //color: '#AAAAAA',
-            //previousVotes: 74,
+            previousName: "A.Cloes (LB)",
+            previousVotes: 74,
+            previousSeats: 1,
             votes: 74
         }
     }
@@ -114,17 +143,25 @@ var votes = [],
     maxSeats = 0,
     init = function() {
         $('input[name=communeName]').val(commune.name);
-        var numCol = 0;
+        var numCol = 0, 
+            previousTotalVotes = 0;
         $.each(commune.lists, function(listName, listData) {
             if (numCol) {
                 $('.addList').click();
             }
             _setListName(numCol, listName);
             _setVotes(numCol, listData.votes);
+            _setPreviousName(numCol, listData.previousName);
+            _setPreviousVotes(numCol, listData.previousVotes);
+            _setPreviousSeats(numCol, listData.previousSeats);
+            previousTotalVotes += listData.votes;
             numCol++;
         });
         $('input[name=maxVotes]').val(commune.maxVotes);
         $('input[name=maxSeats]').val(commune.maxSeats);
+        $('.previousMaxVotes').html(commune.previousMaxVotes);
+        $('.previousMaxSeats').html(commune.previousMaxSeats);
+        $('.previousTotalVotes').html(previousTotalVotes);
         refresh();
     },
     _setListName = function (numCol, name) {
@@ -134,6 +171,15 @@ var votes = [],
     _setVotes = function (numCol, votes) {
         var inputVote = $('input[name="votes[]"]')[numCol];
         inputVote.value = votes;
+    },
+    _setPreviousName = function (numCol, name) {
+        $('.previousName')[numCol].innerHTML = typeof name !== 'undefined' ? name : '';
+    },
+    _setPreviousVotes = function (numCol, votes) {
+        $('.previousVotes')[numCol].innerHTML = parseInt(votes);//typeof votes !== 'undefined' ? votes : 0;
+    },
+    _setPreviousSeats = function (numCol, seats) {
+        $('.previousSeats')[numCol].innerHTML = parseInt(seats);//typeof seats !== 'undefined' ? seats : 0;
     },
     setTotalVotes = function (t) {
         if (isNaN(parseInt(t))) {
@@ -248,18 +294,21 @@ $('input').on('input', function (e) {
 $('.addList').on('click', function (e) {
     e.preventDefault();
 
-    var listNumber = votes.length;
+    var listNumber = $('table.election > thead > tr > th[scope=col]').length;
 
     $('table.election tr > *:last-child').each(function(list, elem) {
         var newElement = $(elem).clone(true, true);
-        $(newElement).find('input[name="list[]"]').val('Liste ' + listNumber);
+        $(newElement).find('input[name="list[]"]').val('Liste ' + (listNumber + 1));
         $(newElement).find('input.votes').val(0);
         $(newElement).find('.removeList').removeClass('hidden'); // edge case with last column remaining
         $($('table.election tr')[list]).append(newElement);
     });
 
     $(this).remove();
-    refresh();
+    _setPreviousName(listNumber, '');
+    _setPreviousVotes(listNumber, 0);
+    _setPreviousSeats(listNumber, 0);
+    //refresh();
 });
 $('.removeList').on('click', function (e) {
     e.preventDefault();
@@ -279,7 +328,20 @@ $('.removeList').on('click', function (e) {
 
     refresh();
 });
+$('.resetElection').on('click', function (e) {
+    e.preventDefault();
 
+    $('.removeList').each(function () { 
+        if (!$(this).hasClass('hidden')) {
+            this.click(); 
+        }
+    });
+    $('input').val('');
+    $('.previousMaxVotes').html('');
+    $('.previousMaxSeats').html('');
+    $('.previousTotalVotes').html('');
+    $('.totalVotes').html(0);
+});
 
 $(document).ready(function () {
     init();
