@@ -16,24 +16,24 @@ Une liste de noms de couleurs peut être trouvée à https://en.wikipedia.org/wi
 
 ```json
 	"Nom de votre commune": {
-        maxVotes: 3904, // Nombre d'électeurs en 2018
-        maxSeats: 17, // Nombre de sièges en 2018
-        previousMaxVotes: 3731, // Nombre d'électeurs en 2012
-        previousMaxSeats: 15, // Nombre de sièges en 2012
-        lists: {
+        "maxVotes": 3904, // Nombre d'électeurs en 2018
+        "maxSeats": 17, // Nombre de sièges en 2018
+        "previousMaxVotes": 3731, // Nombre d'électeurs en 2012
+        "previousMaxSeats": 15, // Nombre de sièges en 2012
+        "lists": {
             "Nom de la liste 1": {
-                backgroundColor: "#3AAA11", // Couleur de fond (ici, en hexadécimal) 
-                textColor: "White", // Couleur de texte
-                previousName: "Nom de cette liste en 2012", // (facultatif)
-                previousVotes: 410, // Nombre de voix en 2012 (facultatif)
-                previousSeats: 1 // Nombre de sièges en 2012 (facultatif)
+                "backgroundColor": "#3AAA11", // Couleur de fond (ici, en hexadécimal) 
+                "textColor": "White", // Couleur de texte
+                "previousName": "Nom de cette liste en 2012", // (facultatif)
+                "previousVotes": 410, // Nombre de voix en 2012 (facultatif)
+                "previousSeats": 1 // Nombre de sièges en 2012 (facultatif)
             },
             "Nom de Liste 2": {
-                backgroundColor: "Yellow",
-                textColor: "Black",
-                previousName: "Nom précédent 2",
-                previousVotes: 1443,
-                previousSeats: 6
+                "backgroundColor": "Yellow",
+                "textColor": "Black",
+                "previousName": "Nom précédent 2",
+                "previousVotes": 1443,
+                "previousSeats": 6
             }
         }
     }
