@@ -16,12 +16,21 @@
         .hidden {display: none;}
         .summary { width: 40%; }
         td > p { margin-bottom:0; }
+        nav > form > * { margin-left: 1em; }
     </style>
 </head>
 <body>
 
-<select name="communeName"></select>
-<a href="#" class="resetElection text-danger"><i class="fas fa-eraser"></i></a>
+<nav class="navbar mavbar-light">
+    <span class="navbar-brand">Élections communales 2018</span>
+    <form class="form form-inline">
+        <select class="form-control" name="communeName"></select>
+        <a href="#" class="resetElection btn btn-danger"><i class="fas fa-trash"></i> Vider tout</a>
+        <a href="#" class="resetVotes btn btn-danger"><i class="fas fa-eraser"></i> Effacer chiffres</a>
+        <a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
+    </form>
+</nav>
+
 <table class="table election">
   <thead>
     <tr>
@@ -53,7 +62,7 @@
     </tr>
   </tbody>
 </table>
-<a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
+
 <table class="table summary">
   <tbody>
     <tr>
@@ -203,7 +212,7 @@ const init = function(communeName) {
         $('.alert-message').remove();
         return true;
     },
-    reset = function (e) {
+    resetElection = function (e) {
         if (e) e.preventDefault();
 
         $('table.election > tbody > tr').each(function (index, elem) { 
@@ -217,6 +226,10 @@ const init = function(communeName) {
         $('.previousTotalVotes').html('');
         $('.totalVotes').html(0);
         _setColors();
+    },
+    resetVotes = function (e) {
+        $('input[name="votes[]"]').val(0);
+        refresh();
     },
     refresh = function () {
         votes = [];
@@ -319,7 +332,8 @@ $('.removeList').on('click', function (e) {
     $(this).closest('tr').remove();
     refresh();
 });
-$('.resetElection').on('click', reset);
+$('.resetElection').on('click', resetElection);
+$('.resetVotes').on('click', resetVotes);
 
 $(document).ready(function () {
     $.each(communes, function(i, c) {
@@ -327,7 +341,7 @@ $(document).ready(function () {
     });
 
     $communeSelector.on('change', function(e) {
-        reset();
+        resetElection();
         init(this.value);
     });
 
