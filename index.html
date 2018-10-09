@@ -179,7 +179,7 @@ const init = function(communeName) {
     },
     setPercentages = function (totalVotes) {
         $.each(votes, function (list, elem) {
-            $('.percent')[list].innerHTML = Math.round((100 * elem) / totalVotes, 2) + '%';
+            $('.percent')[list].innerHTML = (elem ? Math.round((100 * elem) / totalVotes, 2) : 0) + '%';
         });
     },
     addDanger = function (message) {
@@ -250,9 +250,7 @@ const init = function(communeName) {
         setTotalVotes(totalVotes);
         setPercentages(totalVotes);
         let errorMessage = '';
-        if (!totalVotes) {
-            errorMessage += 'error totalVotes : ' + totalVotes + '<br>';
-        }
+
         if (!maxVotes) {
             errorMessage += 'error maxVotes : ' + totalVotes + '<br>';
         }
