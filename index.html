@@ -20,48 +20,40 @@
 </head>
 <body>
 
+<select name="communeName"></select>
+<a href="#" class="resetElection text-danger"><i class="fas fa-eraser"></i></a>
 <table class="table election">
   <thead>
     <tr>
-      <th>
-        <select name="communeName"></select>
-      </th>
-      <td scope="col" class="list">
-          <input name="list[]" value="">
-          <p class="small">(2012: <span class="previousName"></span>)</p>
-      </td>
+      <th></th>
+      <th scope="col">Liste</th>
+      <th scope="col">Voix</th>
+      <th scope="col">Sièges</th>
+      <th scope="col">%age</th>
     </tr>
   </thead>
   <tbody>
-    <tr>
-      <th scope="row">Voix</th>
+    <tr class="list">
+      <td class="actions">
+        <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
+      </td>
+      <td>
+        <input name="list[]" value="">
+        <p class="small hidden">(2012: <span class="previousName"></span>)</p>
+      </td>
       <td>
         <input name="votes[]" class="votes" type="number" value="0">
-        <p class="small">(2012: <span class="previousVotes"></span>)</p>
-      </td>
-    </tr>
-    <tr>
-      <th scope="row">Pourcentage</th>
-      <td class="percent"></td>
-    </tr>
-    <tr>
-      <th scope="row">Sièges</th>
-      <td>
-        <span class="seats"></span>
-        <span class="small">(2012: <span class="previousSeats"></span>)</span>
-      </td>
-    </tr>
-    <tr class="actions">
-      <td>
-          <a href="#" class="resetElection text-danger"><i class="fas fa-eraser"></i></a>
+        <p class="small hidden">(2012: <span class="previousVotes"></span>)</p>
       </td>
       <td>
-          <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
-          <a href="#" class="addList text-primary"><i class="fas fa-plus"></i></a>
+        <p class="seats"></p>
+        <p class="small hidden">(2012: <span class="previousSeats"></span>)</p>
       </td>
+      <td class="percent"></td>      
     </tr>
   </tbody>
 </table>
+<a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
 <table class="table summary">
   <tbody>
     <tr>
@@ -106,20 +98,21 @@ let communeName = 'Héron',
 const init = function(communeName) {
         commune = communes[communeName];
         $communeSelector.val(communeName);
-        let numCol = 0, 
+        let numList = 0, 
             previousTotalVotes = 0;
         $.each(commune.lists, function(listName, listData) {
-            if (numCol) {
+            if (numList) {
+                console.debug('CLICK ' + numList);
                 $('.addList').click();
             }
-            _setListName(numCol, listName);
-            _setVotes(numCol, listData.previousVotes);
-            _setPreviousName(numCol, listData.previousName);
-            _setPreviousVotes(numCol, listData.previousVotes);
-            _setPreviousSeats(numCol, listData.previousSeats);
-            _setColors(numCol, listData.backgroundColor, listData.textColor);
+            _setListName(numList, listName);
+            _setVotes(numList, listData.previousVotes);
+            _setPreviousName(numList, listData.previousName);
+            _setPreviousVotes(numList, listData.previousVotes);
+            _setPreviousSeats(numList, listData.previousSeats);
+            _setColors(numList, listData.backgroundColor, listData.textColor);
             previousTotalVotes += listData.previousVotes;
-            numCol++;
+            numList++;
         });
         $('input[name=maxVotes]').val(commune.maxVotes);
         $('input[name=maxSeats]').val(commune.maxSeats);
@@ -128,42 +121,44 @@ const init = function(communeName) {
         $('.previousTotalVotes').html(previousTotalVotes);
         refresh();
     },
-    _setListName = function (numCol, name) {
-        let inputList = $('input[name="list[]"]')[numCol];
+    _setListName = function (numList, name) {
+        console.debug(numList, name, $('input[name="list[]"]'));
+        let inputList = $('input[name="list[]"]')[numList];
         inputList.value = name;
     },
-    _setVotes = function (numCol, votes) {
-        let inputVote = $('input[name="votes[]"]')[numCol];
+    _setVotes = function (numList, votes) {
+        let inputVote = $('input[name="votes[]"]')[numList];
         inputVote.value = votes;
     },
-    _setPreviousName = function (numCol, name) {
-        __setPrevious('previousName', numCol, name);
+    _setPreviousName = function (numList, name) {
+        __setPrevious('previousName', numList, name);
     },
-    _setPreviousVotes = function (numCol, votes) {
-        __setPrevious('previousVotes', numCol, parseInt(votes));
+    _setPreviousVotes = function (numList, votes) {
+        __setPrevious('previousVotes', numList, parseInt(votes));
     },
-    _setPreviousSeats = function (numCol, seats) {
-        __setPrevious('previousSeats', numCol, parseInt(seats));
+    _setPreviousSeats = function (numList, seats) {
+        __setPrevious('previousSeats', numList, parseInt(seats));
     },
-    __setPrevious = function(what, numCol, value) {
-        let previousValue = $('.' + what)[numCol];
-        if (typeof value === 'undefined' || Object.is(value, NaN)) {
+    __setPrevious = function(what, numList, value) {
+        let previousValue = $('.' + what)[numList];
+        if (!value || typeof value === 'undefined' || Object.is(value, NaN)) {
             $(previousValue).parent().addClass('hidden');
         } else {
             $(previousValue).parent().removeClass('hidden');
             previousValue.innerHTML = value;
         }
     },
-    _setColors = function (numCol, backgroundColor, textColor) {
+    _setColors = function (numList, backgroundColor, textColor) {
         if (typeof backgroundColor === 'undefined') backgroundColor = 'white';
-        if (typeof textColor === 'undefined') textColor = 'white';
-        $('table.election tr').each(function(index, elem) {
-            if ($(elem).hasClass('actions')) return false;
-            let td = $(elem).find('td')[numCol];
+        if (typeof textColor === 'undefined') textColor = 'black';
+        let $list = $($('table.election tr.list')[numList]);
+        $list.each(function(index, elem) {
+            let td = $(elem).find('td').not('.actions');
             $(td).css('background-color', backgroundColor);
             $(td).css('color', textColor);
-            $(td).find('input').css('background-color', textColor);
-            $(td).find('input').css('color', backgroundColor);
+            let input = $(td).find('input');
+            $(input).css('background-color', textColor);
+            $(input).css('color', backgroundColor);
         });
     },
     setTotalVotes = function (t) {
@@ -211,12 +206,12 @@ const init = function(communeName) {
     reset = function (e) {
         if (e) e.preventDefault();
 
-        $('.removeList').each(function () { 
-            if (!$(this).hasClass('hidden')) {
-                this.click(); 
-            }
+        $('table.election > tbody > tr').each(function (index, elem) { 
+            if (index) $(this).remove();
         });
-        $('input').val('');
+        
+        $('input[name="list[]"]').val('');
+        $('input[name="votes[]"]').val('');
         $('.previousMaxVotes').html('');
         $('.previousMaxSeats').html('');
         $('.previousTotalVotes').html('');
@@ -241,8 +236,21 @@ const init = function(communeName) {
 
         setTotalVotes(totalVotes);
         setPercentages(totalVotes);
-        if (!totalVotes || !maxVotes || !maxSeats || totalVotes > maxVotes) {
-            return addDanger('error');
+        let errorMessage = '';
+        if (!totalVotes) {
+            errorMessage += 'error totalVotes : ' + totalVotes + '<br>';
+        }
+        if (!maxVotes) {
+            errorMessage += 'error maxVotes : ' + totalVotes + '<br>';
+        }
+        if (!maxSeats) {
+            errorMessage += 'error maxSeats : ' + totalVotes + '<br>';
+        }
+        if (totalVotes > maxVotes) {
+            errorMessage += 'error totalVotes > maxVotes: ' + totalVotes + '>' + maxVotes +'<br>';
+        }
+        if (errorMessage) {
+            return addDanger(errorMessage);
         }
 
         $.each(getImperiali(votes, maxSeats), function (k, elem) {
@@ -293,18 +301,14 @@ $('input').on('input', function (e) {
 });
 $('.addList').on('click', function (e) {
     e.preventDefault();
+    let listNumber = $('input[name="list[]"]').length;
 
-    let listNumber = $('table.election > thead > tr > *[scope=col]').length;
-
-    $('table.election tr > *:last-child').each(function(list, elem) {
-        let newElement = $(elem).clone(true, true);
-        $(newElement).find('input[name="list[]"]').val('Liste ' + (listNumber + 1));
-        $(newElement).find('input.votes').val(0);
-        $(newElement).find('.removeList').removeClass('hidden'); // edge case with last column remaining
-        $($('table.election tr')[list]).append(newElement);
-    });
-
-    $(this).remove();
+    $('table.election > tbody > tr.list:last-child').clone(true, true).appendTo('table.election > tbody');
+    _setListName(listNumber, 'Liste ' + (listNumber + 1));
+    _setVotes(listNumber, 0);
+    let newElement = $('table.election > tbody > tr.list:last-child');
+    $(newElement).find('.removeList').removeClass('hidden'); // edge case when cloning first line
+    
     _setPreviousName(listNumber, '');
     _setPreviousVotes(listNumber, 0);
     _setPreviousSeats(listNumber, 0);
@@ -312,20 +316,7 @@ $('.addList').on('click', function (e) {
 });
 $('.removeList').on('click', function (e) {
     e.preventDefault();
-    
-    let $addList = $(this).siblings('.addList'),
-        colNum = $(this).parent().index() + 1;
-
-    if ($addList.length) {
-        $addList = $addList.clone(true, true);  
-    } 
-
-    $('table.election tr > *:nth-child(' + colNum + ')').remove();
-
-    if ($addList.length) {
-        $('tr.actions > *:last-child').append($addList);
-    }
-
+    $(this).closest('tr').remove();
     refresh();
 });
 $('.resetElection').on('click', reset);
@@ -337,7 +328,6 @@ $(document).ready(function () {
 
     $communeSelector.on('change', function(e) {
         reset();
-        console.debug(e, this.value, $(this).val());
         init(this.value);
     });
 
