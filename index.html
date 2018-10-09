@@ -23,7 +23,9 @@
 <table class="table election">
   <thead>
     <tr>
-      <th><input name="communeName" value=""></th>
+      <th>
+        <select name="communeName"></select>
+      </th>
       <td scope="col" class="list">
           <input name="list[]" value="">
           <p class="small">(2012: <span class="previousName"></span>)</p>
@@ -61,28 +63,27 @@
   </tbody>
 </table>
 <table class="table summary">
-  <thead>
-      <tr>
-          <th></th>
-          <th scope="col">2012</th>
-          <th scope="col">2018</th>
-      </tr>
-  </thead>
   <tbody>
     <tr>
       <th scope="row">Nombre total d'électeurs</th>
-      <td class="previousMaxVotes">-</td>
-      <td><input name="maxVotes" value=""></td>
+      <td>
+        <input name="maxVotes" value="">
+        <p class="small">(2012: <span class="previousMaxVotes"></span>)</p>
+      </td>
     </tr>    
     <tr>
       <th scope="row">Nombre de sièges à pourvoir</th>
-      <td class="previousMaxSeats">-</td>
-      <td><input name="maxSeats" value=""></td>
+      <td>
+        <input name="maxSeats" value="">
+        <p class="small">(2012: <span class="previousMaxSeats"></span>)</p>
+      </td>
     </tr>    
     <tr>
       <th scope="row">Votes exprimés</th>
-      <td class="previousTotalVotes">-</td>
-      <td class="totalVotes"></td>
+      <td>
+        <span class="totalVotes"></span>
+        <p class="small">(2012: <span class="previousTotalVotes"></span>)</p>
+      </td>
     </tr>
   </tbody>
 </table>
@@ -96,13 +97,15 @@
 <script type="text/javascript">
 let communeName = 'Héron',
     commune = communes[communeName],
+    $communeSelector = $('select[name=communeName]'),
     votes = [],
     seats = [],
     totalVotes = 0,
     maxVotes = 0,
     maxSeats = 0;
-const init = function() {
-        $('input[name=communeName]').val(communeName);
+const init = function(communeName) {
+        commune = communes[communeName];
+        $communeSelector.val(communeName);
         let numCol = 0, 
             previousTotalVotes = 0;
         $.each(commune.lists, function(listName, listData) {
@@ -114,8 +117,7 @@ const init = function() {
             _setPreviousName(numCol, listData.previousName);
             _setPreviousVotes(numCol, listData.previousVotes);
             _setPreviousSeats(numCol, listData.previousSeats);
-            _setBackgroundColor(numCol, listData.backgroundColor);
-            _setTextColor(numCol, listData.textColor);
+            _setColors(numCol, listData.backgroundColor, listData.textColor);
             previousTotalVotes += listData.previousVotes;
             numCol++;
         });
@@ -135,50 +137,33 @@ const init = function() {
         inputVote.value = votes;
     },
     _setPreviousName = function (numCol, name) {
-        let previousName = $('.previousName')[numCol];
-        if (typeof name === 'undefined') {
-            $(previousName).parent().addClass('hidden');
-        } else {
-            $(previousName).parent().removeClass('hidden');
-            previousName.innerHTML = name;
-        }
+        __setPrevious('previousName', numCol, name);
     },
     _setPreviousVotes = function (numCol, votes) {
-        let previousVotes = $('.previousVotes')[numCol];
-        if (typeof votes === 'undefined') {
-            $(previousVotes).parent().addClass('hidden');
-        } else {
-            votes = parseInt(votes);
-            $(previousVotes).parent().removeClass('hidden');
-            previousVotes.innerHTML = votes;
-        }
+        __setPrevious('previousVotes', numCol, parseInt(votes));
     },
     _setPreviousSeats = function (numCol, seats) {
-        let previousSeats = $('.previousSeats')[numCol];
-        if (typeof seats === 'undefined') {
-            $(previousSeats).parent().addClass('hidden');
+        __setPrevious('previousSeats', numCol, parseInt(seats));
+    },
+    __setPrevious = function(what, numCol, value) {
+        let previousValue = $('.' + what)[numCol];
+        if (typeof value === 'undefined' || isNaN(value)) {
+            $(previousValue).parent().addClass('hidden');
         } else {
-            seats = parseInt(seats);
-            $(previousSeats).parent().removeClass('hidden');
-            previousSeats.innerHTML = seats;
+            $(previousValue).parent().removeClass('hidden');
+            previousValue.innerHTML = value;
         }
     },
-    _setBackgroundColor = function (numCol, color) {
-        if (typeof color === 'undefined') color = 'white';
+    _setColors = function (numCol, backgroundColor, textColor) {
+        if (typeof backgroundColor === 'undefined') backgroundColor = 'white';
+        if (typeof textColor === 'undefined') textColor = 'white';
         $('table.election tr').each(function(index, elem) {
             if ($(elem).hasClass('actions')) return false;
             let td = $(elem).find('td')[numCol];
-            $(td).css('background-color', color);
-            $(td).find('input').css('color', color);
-        });
-    },
-    _setTextColor = function (numCol, color) {
-        if (typeof color === 'undefined') color = 'black';
-        $('table.election tr').each(function(index, elem) {
-            if ($(elem).hasClass('actions')) return false;            
-            let td = $(elem).find('td')[numCol];
-            $(td).css('color', color);
-            $(td).find('input').css('background-color', color);
+            $(td).css('background-color', backgroundColor);
+            $(td).css('color', textColor);
+            $(td).find('input').css('background-color', textColor);
+            $(td).find('input').css('color', backgroundColor);
         });
     },
     setTotalVotes = function (t) {
@@ -206,14 +191,14 @@ const init = function() {
         return removeAlert();
     },
     addAlert = function(message) {
-        if ($('.alert-message').length == 0) {
-            let $alert = $('.alert-model').clone();
+        let $alert = $('.alert-message');
+
+        if ($alert.length == 0) {
+            $alert = $('.alert-model').clone();
             $alert.removeClass('hidden');
             $alert.removeClass('alert-model');
             $alert.addClass('alert-message');
             $alert.prependTo('body');
-        } else {
-            let $alert = $('.alert-message');
         }
 
         $alert.find('span.message').html(message);
@@ -222,6 +207,21 @@ const init = function() {
     removeAlert = function() {
         $('.alert-message').remove();
         return true;
+    },
+    reset = function (e) {
+        if (e) e.preventDefault();
+
+        $('.removeList').each(function () { 
+            if (!$(this).hasClass('hidden')) {
+                this.click(); 
+            }
+        });
+        $('input').val('');
+        $('.previousMaxVotes').html('');
+        $('.previousMaxSeats').html('');
+        $('.previousTotalVotes').html('');
+        $('.totalVotes').html(0);
+        _setColors();
     },
     refresh = function () {
         votes = [];
@@ -328,25 +328,21 @@ $('.removeList').on('click', function (e) {
 
     refresh();
 });
-$('.resetElection').on('click', function (e) {
-    e.preventDefault();
-
-    $('.removeList').each(function () { 
-        if (!$(this).hasClass('hidden')) {
-            this.click(); 
-        }
-    });
-    $('input').val('');
-    $('.previousMaxVotes').html('');
-    $('.previousMaxSeats').html('');
-    $('.previousTotalVotes').html('');
-    $('.totalVotes').html(0);
-    _setBackgroundColor(0);
-    _setTextColor(0);
-});
+$('.resetElection').on('click', reset);
 
 $(document).ready(function () {
-    init();
+    $.each(communes, function(i, c) {
+        $communeSelector.append(new Option(i, i));
+    });
+
+    $communeSelector.on('change', function(e) {
+        reset();
+        console.debug(e, this.value, $(this).val());
+        init(this.value);
+    });
+
+    $communeSelector.val(communeName);
+    init(communeName);
 });
 
 </script>
