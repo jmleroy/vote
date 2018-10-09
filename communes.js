@@ -57,15 +57,12 @@ const communes = {
                 backgroundColor: '#9F0122',
                 textColor: 'White',
                 previousName: "LB",
-                previousVotes: 1331,
-                previousSeats: 7
+                previousVotes: 1405,
+                previousSeats: 8
             },
             "Vous Héron": {
                 backgroundColor: 'Khaki',
-                textColor: 'Black',
-                previousName: "A.Cloes (LB)",
-                previousVotes: 74,
-                previousSeats: 1
+                textColor: 'Black'
             }
         }
     }
