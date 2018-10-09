@@ -147,7 +147,7 @@ const init = function(communeName) {
     },
     __setPrevious = function(what, numCol, value) {
         let previousValue = $('.' + what)[numCol];
-        if (typeof value === 'undefined' || isNaN(value)) {
+        if (typeof value === 'undefined' || Object.is(value, NaN)) {
             $(previousValue).parent().addClass('hidden');
         } else {
             $(previousValue).parent().removeClass('hidden');
