@@ -24,7 +24,9 @@
 <nav class="navbar mavbar-light">
     <span class="navbar-brand">Élections communales 2018</span>
     <form class="form form-inline">
-        <select class="form-control" name="communeName"></select>
+        <select class="form-control" name="communeName">
+            <option/>
+        </select>
         <a href="#" class="resetElection btn btn-danger"><i class="fas fa-trash"></i> Vider tout</a>
         <a href="#" class="resetVotes btn btn-danger"><i class="fas fa-eraser"></i> Effacer chiffres</a>
         <a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
@@ -96,8 +98,8 @@
 </div>
 <script type="text/javascript" src="./communes.js"></script>
 <script type="text/javascript">
-let communeName = 'Héron',
-    commune = communes[communeName],
+let communeName = '',
+    commune = {},
     $communeSelector = $('select[name=communeName]'),
     votes = [],
     seats = [],
@@ -343,8 +345,12 @@ $(document).ready(function () {
         init(this.value);
     });
 
-    $communeSelector.val(communeName);
-    init(communeName);
+    let communeName = decodeURIComponent(window.location.hash.replace(/^#/, ''));
+
+    if (communes.hasOwnProperty(communeName)) {
+        $communeSelector.val(communeName);
+        init(communeName);
+    } else console.debug('not found: ', communeName);
 });
 
 </script>
