@@ -9,13 +9,6 @@ const communes = {
                 backgroundColor: '#3AAA11',
                 textColor: 'white'
             },
-            "EngiSolidair": {
-                backgroundColor: 'red',
-                textColor: 'white',
-                previousName: "PS",
-                previousVotes: 2260,
-                previousSeats: 13
-            },
             "E+": {
                 backgroundColor: '#e8296f',
                 textColor: 'white',
@@ -23,12 +16,19 @@ const communes = {
                 previousVotes: 1326,
                 previousSeats: 4
             },
-            "MCER": {
-                backgroundColor: 'teal',
-                textColor: 'white'
-            },
             "Parti Social": {
                 backgroundColor: 'crimson',
+                textColor: 'white'
+            },
+            "EngiSolidair": {
+                backgroundColor: 'red',
+                textColor: 'white',
+                previousName: "PS",
+                previousVotes: 2260,
+                previousSeats: 13
+            },
+            "MCER": {
+                backgroundColor: 'teal',
                 textColor: 'white'
             }
         }
