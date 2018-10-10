@@ -1,4 +1,30 @@
 const communes = {
+    "Amay": {
+        maxVotes: 10911,
+        maxSeats: 23,
+        previousMaxVotes: 10506,
+        previousMaxSeats: 23,
+        lists: {
+            "Ecolo": {
+                backgroundColor: '#3AAA11',
+                textColor: 'white',
+                previousVotes: 4820,
+                previousSeats: 14
+            },
+            "PS": {
+                backgroundColor: 'red',
+                textColor: 'white',
+                previousVotes: 3091,
+                previousSeats: 8
+            },
+            "AMAY.PLUS": {
+                backgroundColor: 'teal',
+                textColor: 'white',
+                previousVotes: 676,
+                previousSeats: 1
+            }
+        }
+    },
 	"Engis": {
         maxVotes: 4545,
         maxSeats: 17,
