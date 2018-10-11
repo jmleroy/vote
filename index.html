@@ -17,6 +17,7 @@
         .summary { width: 40%; }
         td > p { margin-bottom:0; }
         nav > form > * { margin-left: 1em; }
+        #exportModal textarea { font-family: monospace; }
     </style>
 </head>
 <body>
@@ -24,7 +25,12 @@
 <nav class="navbar mavbar-light">
     <span class="navbar-brand">Élections communales 2018</span>
     <form class="form form-inline">
-        <select class="form-control" name="communeName"></select>
+        <select class="form-control" name="communeName">
+            <option>Choisir une commune...</option>
+        </select>
+        <button type="button" class="export btn btn-primary" data-toggle="modal" data-target="#exportModal">
+            <i class="fas fa-file-export"></i> Exporter
+        </button>
         <a href="#" class="resetElection btn btn-danger"><i class="fas fa-trash"></i> Vider tout</a>
         <a href="#" class="resetVotes btn btn-danger"><i class="fas fa-eraser"></i> Effacer chiffres</a>
         <a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
@@ -97,6 +103,34 @@
   </button>
 </div>
 
+<div class="modal fade" id="exportModal" tabindex="-1" role="dialog" aria-labelledby="exportModalTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exportModalTitle">Exporter le tableau...</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Votre commune manque à la liste ? Vous pouvez exporter les données du tableau que vous avez constitué ! Soit en m'envoyant les données ci-dessous <a class="mail" href="mailto:jmleroy@gmail.com">par e-mail</a> ou si vous connaissez Git, <a class="pullRequest" target="_blank" href="https://github.com/jmleroy/vote/blob/master/communes.js">via un pull request</a>.</p>
+        <p>Les chiffres de votes seront ceux de 2012. Si une liste portait alors un autre nom, merci de corriger la donnée "previousName" dans le tableau.</p>
+        <form>
+            <div class="form-group">
+                <input type="text" class="form-control" name="name" placeholder="Nom de la commune" />
+            </div>
+            <div class="form-group">
+                <textarea name="exportData" class="form-control" rows="20"></textarea>
+            </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript" src="./tinycolor.js"></script>
 <script type="text/javascript" src="./communes.js"></script>
 <script type="text/javascript">
@@ -145,6 +179,9 @@ const init = function(communeName) {
     },
     _setPreviousName = function (numList, name) {
         __setPrevious('previousName', numList, name);
+        if (name == $('input[name="list[]"]')[numList].value) {
+            $($('.previousName')[numList]).parent().addClass('hidden');
+        }
     },
     _setPreviousVotes = function (numList, votes) {
         __setPrevious('previousVotes', numList, parseInt(votes));
@@ -324,10 +361,30 @@ const init = function(communeName) {
         while (top.length < maxSeats) top[top.length] = all.pop();
 
         return top;
+    },
+    exportData = function() {
+        let data = { },
+            cName = (exportName ? exportName : "commune");
+        data[cName] = {
+            maxVotes: $('.maxVotes').val(),
+            maxSeats: $('.maxSeats').val(),
+            previousMaxVotes: 0,
+            previousMaxSeats: 0,
+            lists: { } 
+        };
+        $('input[name="list[]"]').each(function(index, elem) {
+            data[cName].lists[elem.value] = {
+                colour: $('.colorPicker')[index].value,
+                previousName: elem.value,
+                previousVotes: $('.votes')[index].value,
+                previousSeats: $('.seats')[index].innerHTML
+            }
+        });
+        $exportData.html(JSON.stringify(data));
     }
 ;
 
-$('input').on('input', function (e) {
+$('table.election input').on('input', function (e) {
     refresh();
 });
 $('.addList').on('click', function (e) {
@@ -353,6 +410,43 @@ $('.removeList').on('click', function (e) {
 });
 $('.resetElection').on('click', resetElection);
 $('.resetVotes').on('click', resetVotes);
+
+
+let exportEmail = 'jmleroy@gmail.com',
+    exportSubject = 'Données de 2012 sur la commune de ',
+    exportName = '';
+
+const $communeName = $('#exportModal input[name="name"]'),
+      $exportData = $('#exportModal textarea[name=exportData]'),
+      updateMailValue = function() {
+        $('#exportModal .mail').attr('href',
+            'mailto: ' + exportEmail + 
+            '?subject=' + encodeURI(exportSubject + exportName)
+            +'&body=' + encodeURI($exportData.html())
+        );
+      },
+      onCommuneNameChange = function(e) {
+        exportName = e.target.value;
+        exportData();
+        updateMailValue();
+      };
+
+$('#exportModal').on('show.bs.modal', function (event) {
+    const modal = $(this);
+    exportName = $communeName.val();
+    if (!exportName) {
+        exportName = $('select[name=communeName] option:selected').html();
+        $communeName.val(exportName);
+    }
+    $('.exportData').html(exportData());
+    updateMailValue();
+});
+
+$communeName.on('input', onCommuneNameChange);
+
+$('.exportData').on('change', function(e) {
+    updateMailValue();
+});
 
 $(document).ready(function () {
     $.each(communes, function(i, c) {
