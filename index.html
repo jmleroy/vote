@@ -24,9 +24,7 @@
 <nav class="navbar mavbar-light">
     <span class="navbar-brand">Élections communales 2018</span>
     <form class="form form-inline">
-        <select class="form-control" name="communeName">
-            <option/>
-        </select>
+        <select class="form-control" name="communeName"></select>
         <a href="#" class="resetElection btn btn-danger"><i class="fas fa-trash"></i> Vider tout</a>
         <a href="#" class="resetVotes btn btn-danger"><i class="fas fa-eraser"></i> Effacer chiffres</a>
         <a href="#" class="addList btn btn-primary"><i class="fas fa-plus"></i> Ajouter une liste</a>
@@ -36,18 +34,15 @@
 <table class="table election">
   <thead>
     <tr>
-      <th></th>
       <th scope="col">Liste</th>
       <th scope="col">Voix</th>
       <th scope="col">Sièges</th>
       <th scope="col">%age</th>
+      <th></th>
     </tr>
   </thead>
   <tbody>
     <tr class="list">
-      <td class="actions">
-        <a href="#" class="removeList text-danger hidden"><i class="fas fa-trash-alt"></i></a>
-      </td>
       <td>
         <input name="list[]" value="">
         <p class="small hidden">(2012: <span class="previousName"></span>)</p>
@@ -60,7 +55,11 @@
         <p class="seats"></p>
         <p class="small hidden">(2012: <span class="previousSeats"></span>)</p>
       </td>
-      <td class="percent"></td>      
+      <td class="percent"></td>  
+      <td class="actions">
+        <input class="colorPicker" type="color"/>
+        <a href="#" class="removeList btn btn-danger hidden"><i class="fas fa-trash-alt"></i></a>
+      </td>    
     </tr>
   </tbody>
 </table>
@@ -90,12 +89,15 @@
     </tr>
   </tbody>
 </table>
+
 <div class="alert-model alert alert-danger hidden" role="alert">
   <span class="message"></span>
   <button type="button" class="close" data-dismiss="alert" aria-label="Close">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>
+
+<script type="text/javascript" src="./tinycolor.js"></script>
 <script type="text/javascript" src="./communes.js"></script>
 <script type="text/javascript">
 let communeName = '',
@@ -113,7 +115,6 @@ const init = function(communeName) {
             previousTotalVotes = 0;
         $.each(commune.lists, function(listName, listData) {
             if (numList) {
-                console.debug('CLICK ' + numList);
                 $('.addList').click();
             }
             _setListName(numList, listName);
@@ -121,7 +122,9 @@ const init = function(communeName) {
             _setPreviousName(numList, listData.previousName);
             _setPreviousVotes(numList, listData.previousVotes);
             _setPreviousSeats(numList, listData.previousSeats);
-            _setColors(numList, listData.backgroundColor, listData.textColor);
+            _initColorPicker(numList, listData.colour);
+            _setColor(numList, listData.colour);
+            
             previousTotalVotes += listData.previousVotes;
             numList++;
         });
@@ -133,7 +136,6 @@ const init = function(communeName) {
         refresh();
     },
     _setListName = function (numList, name) {
-        console.debug(numList, name, $('input[name="list[]"]'));
         let inputList = $('input[name="list[]"]')[numList];
         inputList.value = name;
     },
@@ -159,9 +161,16 @@ const init = function(communeName) {
             previousValue.innerHTML = value;
         }
     },
-    _setColors = function (numList, backgroundColor, textColor) {
+    _initColorPicker = function (numList, backgroundColor) {
+        $($('.colorPicker')[numList])
+            .val(tinycolor(backgroundColor).toHexString())
+            .on('change', function(e) {
+                _setColor($(e.target).parent().parent().index(), e.target.value);
+            });
+    },
+    _setColor = function (numList, backgroundColor) {
         if (typeof backgroundColor === 'undefined') backgroundColor = 'white';
-        if (typeof textColor === 'undefined') textColor = 'black';
+        let textColor = _isLight(backgroundColor) ? 'black' : 'white';
         let $list = $($('table.election tr.list')[numList]);
         $list.each(function(index, elem) {
             let td = $(elem).find('td').not('.actions');
@@ -178,6 +187,15 @@ const init = function(communeName) {
         } else {
             $('.totalVotes').html(t);
         }
+    },
+    _isLight = function (color) {
+        let rgb = tinycolor(color).toHex();
+        let o =  Math.round((
+                      (parseInt(rgb.substring(0,2), 16).toString(10) * 299) +
+                      (parseInt(rgb.substring(2,4), 16).toString(10) * 587) +
+                      (parseInt(rgb.substring(4,6), 16).toString(10) * 114)
+                    ) / 1000);
+        return o > 125;
     },
     setPercentages = function (totalVotes) {
         $.each(votes, function (list, elem) {
@@ -227,7 +245,7 @@ const init = function(communeName) {
         $('.previousMaxSeats').html('');
         $('.previousTotalVotes').html('');
         $('.totalVotes').html(0);
-        _setColors();
+        _setColor();
     },
     resetVotes = function (e) {
         $('input[name="votes[]"]').val(0);
@@ -314,17 +332,18 @@ $('input').on('input', function (e) {
 });
 $('.addList').on('click', function (e) {
     e.preventDefault();
-    let listNumber = $('input[name="list[]"]').length;
+    let numList = $('input[name="list[]"]').length;
 
     $('table.election > tbody > tr.list:last-child').clone(true, true).appendTo('table.election > tbody');
-    _setListName(listNumber, 'Liste ' + (listNumber + 1));
-    _setVotes(listNumber, 0);
+    _setListName(numList, 'Liste ' + (numList + 1));
+    _setVotes(numList, 0);
     let newElement = $('table.election > tbody > tr.list:last-child');
     $(newElement).find('.removeList').removeClass('hidden'); // edge case when cloning first line
     
-    _setPreviousName(listNumber, '');
-    _setPreviousVotes(listNumber, 0);
-    _setPreviousSeats(listNumber, 0);
+    _setPreviousName(numList, '');
+    _setPreviousVotes(numList, 0);
+    _setPreviousSeats(numList, 0);
+    _initColorPicker(numList, 'white');
     refresh();
 });
 $('.removeList').on('click', function (e) {
@@ -353,6 +372,7 @@ $(document).ready(function () {
         init(communeName);
     } else console.debug('not found: ', communeName);
 });
+
 
 </script>
 </body>
