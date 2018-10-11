@@ -6,20 +6,17 @@ const communes = {
         previousMaxSeats: 23,
         lists: {
             "Ecolo": {
-                backgroundColor: '#3AAA11',
-                textColor: 'white',
+                colour: '#3AAA11',
                 previousVotes: 4820,
                 previousSeats: 14
             },
             "PS": {
-                backgroundColor: 'red',
-                textColor: 'white',
+                colour: 'red',
                 previousVotes: 3091,
                 previousSeats: 8
             },
             "AMAY.PLUS": {
-                backgroundColor: 'teal',
-                textColor: 'white',
+                colour: 'teal',
                 previousVotes: 676,
                 previousSeats: 1
             }
@@ -32,30 +29,25 @@ const communes = {
         previousMaxSeats: 17,
         lists: {
             "Ecolo": {
-                backgroundColor: '#3AAA11',
-                textColor: 'white'
+                colour: '#3AAA11'
             },
             "E+": {
-                backgroundColor: '#e8296f',
-                textColor: 'white',
+                colour: '#e8296f',
                 previousName: "MR + cdH",
                 previousVotes: 1326,
                 previousSeats: 4
             },
             "Parti Social": {
-                backgroundColor: 'crimson',
-                textColor: 'white'
+                colour: 'crimson'
             },
             "EngiSolidair": {
-                backgroundColor: 'red',
-                textColor: 'white',
+                colour: 'red',
                 previousName: "PS",
                 previousVotes: 2260,
                 previousSeats: 13
             },
             "MCER": {
-                backgroundColor: 'teal',
-                textColor: 'white'
+                colour: 'teal'
             }
         }
     },
@@ -66,29 +58,25 @@ const communes = {
         previousMaxSeats: 15,
         lists: {
             "Ecolo OuVert": {
-                backgroundColor: '#3AAA11',
-                textColor: 'white',
+                colour: '#3AAA11',
                 previousName: "Ecolo",
                 previousVotes: 410,
                 previousSeats: 1
             },
             "EC": {
-                backgroundColor: 'teal',
-                textColor: 'white',
+                colour: 'teal',
                 previousName: "Renouveau + IC",
                 previousVotes: 1443,
                 previousSeats: 6
             },
             "LB": {
-                backgroundColor: '#9F0122',
-                textColor: 'White',
+                colour: '#9F0122',
                 previousName: "LB",
                 previousVotes: 1405,
                 previousSeats: 8
             },
             "Vous Héron": {
-                backgroundColor: 'Khaki',
-                textColor: 'Black'
+                colour: 'Khaki'
             }
         }
     }
